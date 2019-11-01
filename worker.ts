@@ -79,7 +79,7 @@ const downloadRelease = async (id: number, Cookie: string) =>
     const filename = fixFilename(rawFilename);
 
     const size = Number(headers["content-length"]);
-    let progress = 0;
+    // let progress = 0;
 
     process.send!({
       type: "info",
@@ -97,6 +97,9 @@ const downloadRelease = async (id: number, Cookie: string) =>
         type: "error",
         data: e
       });
+    stream.on("data", (chunk: Buffer) => {
+      // progress += chunk.length;
+      output.write(chunk);
     });
 
     output.on("open", () => {
