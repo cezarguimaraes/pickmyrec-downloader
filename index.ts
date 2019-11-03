@@ -275,7 +275,7 @@ const main = async () => {
   // -------------------------DOWNLOAD RELEASE FILES---------------------------------//
 
   const releaseCategories: Category[] = await readJson(
-    "./release-categories.json"
+    "./categories/release-categories.json"
   );
   console.log(
     `Selected categories: ${releaseCategories
@@ -304,7 +304,9 @@ const main = async () => {
   console.log("-------------------------------------");
 
   // -------------------------DOWNLOAD SCENE FILES---------------------------------//
-  const sceneCategories: Category[] = await readJson("./scene-categories.json");
+  const sceneCategories: Category[] = await readJson(
+    "./categories/scene-categories.json"
+  );
   console.log(
     `Selected categories: ${sceneCategories
       .filter((r: Category) => r.selected)
@@ -329,7 +331,7 @@ const main = async () => {
 
   // -------------------------DOWNLOAD CHARTS FILES---------------------------------//
   const chartsCategories: Category[] = await readJson(
-    "./charts-categories.json"
+    "./categories/charts-categories.json"
   );
   console.log(
     `Selected categories: ${chartsCategories
@@ -354,7 +356,9 @@ const main = async () => {
   console.log("-------------------------------------");
 
   // -------------------------DOWNLOAD PROMO FILES---------------------------------//
-  const promoCategories: Category[] = await readJson("./promo-categories.json");
+  const promoCategories: Category[] = await readJson(
+    "./categories/promo-categories.json"
+  );
   console.log(
     `Selected categories: ${promoCategories
       .filter((r: Category) => r.selected)

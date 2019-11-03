@@ -8,7 +8,7 @@
     "id": 48,
     "nm": "House",
     "pos": 2,
-    "selected": false,
+    "selected": true,
     "has": false
 }, {
     "id": 111,
@@ -26,7 +26,7 @@
     "id": 72,
     "nm": "Nudisco",
     "pos": 5,
-    "selected": false,
+    "selected": true,
     "has": false
 }, {
     "id": 63,
@@ -38,13 +38,13 @@
     "id": 56,
     "nm": "Tech House",
     "pos": 7,
-    "selected": false,
+    "selected": true,
     "has": false
 }, {
     "id": 34,
     "nm": "Techno",
     "pos": 8,
-    "selected": false,
+    "selected": true,
     "has": false
 }, {
     "id": 26,

@@ -100,6 +100,10 @@ const downloadRelease = async (id: number, Cookie: string) =>
     stream.on("data", (chunk: Buffer) => {
       // progress += chunk.length;
       output.write(chunk);
+      // process.send!({
+      //   type: "progress",
+      //   data: progress / size
+      // });
     });
 
     output.on("open", () => {
