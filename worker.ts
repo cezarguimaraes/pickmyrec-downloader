@@ -37,6 +37,17 @@ const urlDownloadRelease = (id: number) =>
 }
 */
 
+const fixContentDisposition = (cd: string) => {
+  const m = cd.match(/(filename\*=[^']*'')([^;]*)/);
+  if (m === null) return cd;
+  const fixedExtFile = encodeURIComponent(decodeURIComponent(m[2]));
+  const cdArr = Array.from(cd);
+  cdArr.splice(m.index!, m[0].length, ...Array.from(m[1] + fixedExtFile));
+  return cdArr.join("");
+};
+
+const fixFilename = (filename: string) => filename.replace(/\//g, "_");
+
 const downloadRelease = async (id: number, Cookie: string) =>
   new Promise(async (resolve, reject) => {
     const res = await axios.get(urlDownloadRelease(id), {
@@ -62,8 +73,10 @@ const downloadRelease = async (id: number, Cookie: string) =>
     const { data: stream, headers } = res;
 
     const {
-      parameters: { filename }
-    } = parse(headers["content-disposition"]);
+      parameters: { filename: rawFilename }
+    } = parse(fixContentDisposition(headers["content-disposition"]));
+
+    const filename = fixFilename(rawFilename);
 
     const size = Number(headers["content-length"]);
     let progress = 0;
@@ -79,37 +92,46 @@ const downloadRelease = async (id: number, Cookie: string) =>
     const path = `./downloads/${filename}`;
     const output = createWriteStream(path);
 
-    stream.on("data", (chunk: Buffer) => {
-      progress += chunk.length;
-      output.write(chunk);
-      process.send!({
-        type: "progress",
-        data: progress / size
-      });
-    });
-
-    stream.on("error", (e: any) => {
-      output.end();
-      reject(e);
+    output.on("error", e => {
       process.send!({
         type: "error",
-        data: (e || "").toString()
+        data: e
       });
     });
 
-    stream.on("end", () => {
-      output.end();
-      const data = {
-        id,
-        filename,
-        path,
-        size
-      };
-      process.send!({
-        type: "end",
-        data
+    output.on("open", () => {
+      stream.on("data", (chunk: Buffer) => {
+        progress += chunk.length;
+        output.write(chunk);
+        process.send!({
+          type: "progress",
+          data: progress / size
+        });
       });
-      resolve(data);
+
+      stream.on("error", (e: any) => {
+        output.end();
+        reject(e);
+        process.send!({
+          type: "error",
+          data: (e || "").toString()
+        });
+      });
+
+      stream.on("end", () => {
+        output.end();
+        const data = {
+          id,
+          filename,
+          path,
+          size
+        };
+        process.send!({
+          type: "end",
+          data
+        });
+        resolve(data);
+      });
     });
   });
 

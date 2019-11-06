@@ -160,8 +160,8 @@ const downloadQueue = async (
         console.debug(`starting download of release id ${id}`);
         await downloadRelease(w, id, m => listener(id, m));
       } catch (e) {
-        console.log(`worker error, restarting worker...`);
-        console.debug(e);
+        console.debug(`worker error, restarting worker...`);
+        console.error(e);
         w.stop();
         w = newWorker(path);
       }
