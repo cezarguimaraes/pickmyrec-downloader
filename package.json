@@ -1,26 +1,60 @@
 {
-  "name": "pickmyrec-downloader",
-  "version": "1.0.0",
-  "main": "index.js",
-  "author": "Cezar Guimaraes <cezarguimaraes2810@gmail.com>",
-  "license": "MIT",
-  "scripts":{"build": "tsc --project .", "run": "node ."},
-  "dependencies": {
-    "@types/fs-extra": "^8.0.1",
-    "axios": "^0.19.0",
-    "content-disposition": "^0.5.3",
-    "fs": "^0.0.1-security",
-    "fs-extra": "^8.1.0",
-    "fstream": "^1.0.12",
-    "node-unzip-2": "^0.2.8",
-    "unzip": "^0.1.11",
-    "wget-improved": "^3.0.2",
-    "workerpool": "^5.0.1",
-    "zlib": "^1.0.5"
-  },
-  "devDependencies": {
-    "@types/content-disposition": "^0.5.2",
-    "@types/unzip": "^0.1.1",
-    "@types/workerpool": "^5.0.0"
-  }
+	"name": "pickmyrec-downloader",
+	"version": "0.0.0",
+	"license": "MIT",
+	"bin": "./lib/cli.js",
+	"engines": {
+		"node": ">=8"
+	},
+	"scripts": {
+		"start": "react-scripts-ts start",
+		"build": "react-scripts-ts build",
+		"test": "react-scripts-ts test --env=jsdom",
+		"dev": "nodemon --watch src\"src\" --exec \"ts-node src/cli.ts\" -e ts",
+		"eject": "react-scripts-ts eject"
+	},
+	"files": [
+		"cli.js",
+		"ui.js"
+	],
+	"dependencies": {
+		"axios": "^0.19.0",
+		"import-jsx": "^3.0.0",
+		"ink": "^2.5.0",
+		"ink-progress-bar": "^3.0.0",
+		"meow": "^5.0.0",
+		"prop-types": "^15.7.2",
+		"proper-lockfile": "^4.1.1",
+		"ramda": "^0.26.1",
+		"react": "^16.12.0"
+	},
+	"devDependencies": {
+		"@babel/preset-react": "^7.7.4",
+		"@babel/register": "^7.7.4",
+		"@types/ramda": "^0.26.36",
+		"ava": "^2.4.0",
+		"chalk": "^3.0.0",
+		"eslint-config-xo-react": "^0.20.0",
+		"eslint-plugin-react": "^7.16.0",
+		"eslint-plugin-react-hooks": "^2.3.0",
+		"ink-testing-library": "^1.0.2",
+		"nodemon": "^2.0.1",
+		"react-scripts-ts": "^3.1.0",
+		"ts-node": "^8.5.2",
+		"typescript": "^3.7.2",
+		"xo": "^0.25.3"
+	},
+	"ava": {
+		"require": [
+			"@babel/register"
+		]
+	},
+	"babel": {
+		"presets": [
+			"@babel/preset-react"
+		]
+	},
+	"xo": {
+		"extends": "xo-react"
+	}
 }

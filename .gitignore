@@ -2,6 +2,8 @@ node_modules
 *.js
 downloads/**
 details.json
-
+db
+downloads
+oldDownloads
 
 bla.json

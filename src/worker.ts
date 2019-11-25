@@ -37,10 +37,16 @@ const urlDownloadRelease = (id: number) =>
 }
 */
 
+function strictEncodeURIComponent(str: string) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+    return "%" + c.charCodeAt(0).toString(16);
+  });
+}
+
 const fixContentDisposition = (cd: string) => {
   const m = cd.match(/(filename\*=[^']*'')([^;]*)/);
   if (m === null) return cd;
-  const fixedExtFile = encodeURIComponent(decodeURIComponent(m[2]));
+  const fixedExtFile = strictEncodeURIComponent(decodeURIComponent(m[2]));
   const cdArr = Array.from(cd);
   cdArr.splice(m.index!, m[0].length, ...Array.from(m[1] + fixedExtFile));
   return cdArr.join("");
@@ -102,25 +108,19 @@ const downloadRelease = async (id: number, Cookie: string) =>
         type: "error",
         data: e
       });
+    });
+
+    let progress = 0;
     stream.on("data", (chunk: Buffer) => {
-      // progress += chunk.length;
+      progress += chunk.length;
       output.write(chunk);
-      // process.send!({
-      //   type: "progress",
-      //   data: progress / size
-      // });
+      process.send!({
+        type: "progress",
+        data: progress / size
+      });
     });
 
     output.on("open", () => {
-      stream.on("data", (chunk: Buffer) => {
-        progress += chunk.length;
-        output.write(chunk);
-        process.send!({
-          type: "progress",
-          data: progress / size
-        });
-      });
-
       stream.on("error", (e: any) => {
         output.end();
         reject(e);
