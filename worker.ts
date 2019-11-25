@@ -72,6 +72,11 @@ const downloadRelease = async (id: number, Cookie: string) =>
 
     const { data: stream, headers } = res;
 
+    process.send!({
+      type: "debug",
+      data: headers
+    });
+
     const {
       parameters: { filename: rawFilename }
     } = parse(fixContentDisposition(headers["content-disposition"]));

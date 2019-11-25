@@ -151,15 +151,14 @@ const downloadQueue = async (
   nWorkers: number,
   listener: (id: number, m: { type: string; data: any }) => void
 ) => {
-  console.log("releases", releaseIds);
-  console.log("nWorkers", nWorkers);
+  console.log("number of Workers", nWorkers);
 
   const handler = async (path: string) => {
     let w = newWorker(path);
     while (releaseIds.length > 0) {
       const [id] = releaseIds.splice(releaseIds.length - 1, 1);
       try {
-        console.debug(`starting download of release id ${id}`);
+        console.debug(`starting download of ID ${id}`);
         await downloadRelease(w, id, m => listener(id, m));
       } catch (e) {
         console.debug(`worker error, restarting worker...`);
@@ -197,7 +196,7 @@ interface Track {
 }
 
 const getList = async (
-  section: string,
+  section: string,   // Releases, Scene, Charts, Promo, Packs
   date: Date,
   bytes: number,
   categories: any
@@ -209,14 +208,11 @@ const getList = async (
 
   let n = 0;
   while (n < bytes) {
-    res.forEach(element => {
-      element.tracks.forEach(track => {
-        n += track.filesize;
-      });
-    });
     const ts = date.toISOString();
     const match = ts.match(/(\d+)\-(\d+)\-(\d+)/);
-    if (match === null) break;
+    if (match === null) {
+      break;
+    }
     const [param] = match;
     const { data } = await axios.get(
       `https://srv.pickmyrec.com/a/ms/section/${section}/media?date=${param}&mp3prefered=false&popular_order=true`,
@@ -229,11 +225,12 @@ const getList = async (
     );
     res.push(
       ...(data.releases
-        .filter((r: any) => !r.downloaded)
+        .filter((r: any) => r.downloaded!)
         .map((r: any) => ({
           id: r.id as number,
           tracks: r.tracks.map((t: any) => ({
-            category: t.category_nm
+            category: t.category_nm,
+            filesize: t.filesize
           })) as Track[],
           matchPercentile: (r.tracks.filter((t: any) =>
             selectedCategories.some((s: any) => s.nm == t.category_nm)
@@ -241,11 +238,18 @@ const getList = async (
         })) as Release[])
     );
 
+    res.forEach(element => {
+      element.tracks.forEach(track => {
+        n += track.filesize;
+      });
+    });
+
     date.setUTCMilliseconds(date.getUTCMilliseconds() - DAY_MS);
   }
 
-  return res.filter(r => r.matchPercentile >= matchThreshold);
+  return res.filter((r: any) => r.matchPercentile >= matchThreshold);
 };
+
 const bytesLeft = (Cookie: string) =>
   axios
     .get("https://srv.pickmyrec.com/a/ms/app?v=1.6.389", {
@@ -268,7 +272,7 @@ const main = async () => {
   await ensureDir("./downloads/");
 
   const date = new Date();
-  date.setUTCMilliseconds(date.getUTCMilliseconds() - 2 * DAY_MS);
+  date.setUTCMilliseconds(date.getUTCMilliseconds() - 1 * DAY_MS);
 
   const bytesleft = await bytesLeft(Cookie);
 
@@ -290,17 +294,17 @@ const main = async () => {
     bytesleft["RELEASES"],
     releaseCategories
   );
-  console.log("Downloading from Releases...");
-
+  console.log(`Downloading ${list_releases.length} tracks from Releases...`);
   const queue_releases = downloadQueue(
     list_releases.map(x => x.id),
-    2,
+    4,
     (id, m) => {
-      console.debug("message from " + id, m);
+      console.debug("message from " + id, JSON.stringify(m, null, 2));
     }
   );
 
   await queue_releases;
+  return;
   console.log("-------------------------------------");
 
   // -------------------------DOWNLOAD SCENE FILES---------------------------------//
@@ -320,15 +324,15 @@ const main = async () => {
     bytesleft["SCENE"],
     sceneCategories
   );
-  console.log("Downloading from scenes...");
 
-  const queue_scene = downloadQueue(list_scene.map(x => x.id), 2, (id, m) => {
+  console.log(`Downloading ${list_scene.length} tracks from Scene...`);
+
+  const queue_scene = downloadQueue(list_scene.map(x => x.id), 4, (id, m) => {
     console.debug("message from " + id, m);
   });
 
   await queue_scene;
   console.log("-------------------------------------");
-
   // -------------------------DOWNLOAD CHARTS FILES---------------------------------//
   const chartsCategories: Category[] = await readJson(
     "./categories/charts-categories.json"
@@ -348,7 +352,7 @@ const main = async () => {
   );
   console.log("Downloading from charts...");
 
-  const queue_charts = downloadQueue(list_charts.map(x => x.id), 2, (id, m) => {
+  const queue_charts = downloadQueue(list_charts.map(x => x.id), 4, (id, m) => {
     console.debug("message from " + id, m);
   });
 
@@ -372,20 +376,15 @@ const main = async () => {
     bytesleft["PROMO"],
     promoCategories
   );
-  console.log("Downloading from promo...");
 
-  const queue_promo = downloadQueue(list_promo.map(x => x.id), 2, (id, m) => {
+  console.log(`Downloading ${list_promo.length} tracks from Promo...`);
+
+  const queue_promo = downloadQueue(list_promo.map(x => x.id), 4, (id, m) => {
     console.debug("message from " + id, m);
   });
 
   await queue_promo;
   console.log("-------------------------------------");
-
-  // Releases
-  // Scene
-  // Charts
-  // Promo
-  // Packs
 };
 
 main();
