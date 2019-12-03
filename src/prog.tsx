@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Color, render } from "ink";
+const { Box, Color } = require("ink");
 import ProgressBar from "ink-progress-bar";
 
 const Progress: React.FunctionComponent = () => {
@@ -12,13 +12,13 @@ const Progress: React.FunctionComponent = () => {
   })
 
   const text = `Total: `
-  return <Box>
+  return (<Box>
     {text}
     <Color greenBright>
       <ProgressBar left={text.length}
       percent={percent/100}/>
     </Color>
-  </Box>
+  </Box>)
 }
 
-render(<Progress />)
+export default Progress;

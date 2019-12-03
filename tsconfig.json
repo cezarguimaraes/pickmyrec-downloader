@@ -20,11 +20,11 @@
     "skipLibCheck": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
-    "strictPropertyInitialization": true
+    "strictPropertyInitialization": true,
   },
   "typeAcquisition": {
     "enable": true
   },
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "./typings/**/*"],
   "exclude": ["node_modules"]
 }
